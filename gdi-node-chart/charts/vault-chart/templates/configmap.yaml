@@ -1,8 +1,0 @@
-# templates/configmap.yaml
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: {{ include "vault-chart.fullname" . }}-config
-  namespace: {{ .Values.global.namespace }}
-data:
-  config.json: {{ .Values.config.content | quote }}
