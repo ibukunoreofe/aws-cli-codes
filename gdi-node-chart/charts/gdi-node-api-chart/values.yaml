@@ -1,0 +1,12 @@
+global:
+  namespace: gdi-node
+
+image:
+  repository: gdi-node-api
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  ports:
+    api: 8080

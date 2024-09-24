@@ -1,0 +1,27 @@
+# templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "gdi-node-api-chart.fullname" . }}
+  namespace: {{ .Values.global.namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "gdi-node-api-chart.fullname" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "gdi-node-api-chart.fullname" . }}
+    spec:
+      containers:
+        - name: gdi-node-api
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+            - containerPort: {{ .Values.service.ports.api }}
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.service.ports.api }}
+            initialDelaySeconds: 15
+            periodSeconds: 10

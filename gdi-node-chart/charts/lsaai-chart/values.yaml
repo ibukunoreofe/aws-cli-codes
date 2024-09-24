@@ -1,0 +1,19 @@
+global:
+  namespace: gdi-node
+
+mysql:
+  image:
+    repository: mysql/mysql-server
+    tag: latest
+  database: lsaai_db
+  rootHost: "%"
+  rootPassword: lsaai_db_root_pass
+  user: lsaai_db_app_user
+  password: lsaai_db_app_pass
+  initScript: db.sql  # Path within the ConfigMap
+
+app:
+  image:
+    repository: registry.gitlab.ics.muni.cz/perun/deployment/proxyidp/proxyidp-public-docker-images/ls_aai_mock
+    tag: 2.5.2-broker2.1.10-tomcat9.0-jdk11
+  port: 8080

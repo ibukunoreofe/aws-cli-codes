@@ -1,0 +1,24 @@
+image:
+  repository: minio/minio
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  ports:
+    server: 9000
+    console: 9001
+
+persistence:
+  enabled: true
+  size: 10Gi
+  storageClassName: ""  # Use default StorageClass or specify if needed
+
+minio:
+  rootUser: minio-admin
+  rootPassword: minio-admin-pass
+  appUser: gdi-node-app
+  appPassword: gdi-node-app-pass
+  appBucket: gdi-node-storage
+  extBucket: gdi-data-provider
+  backupBucket: gdi-node-backup

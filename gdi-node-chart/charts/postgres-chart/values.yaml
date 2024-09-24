@@ -1,0 +1,21 @@
+image:
+  repository: postgres
+  tag: 16-alpine
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 5432
+
+persistence:
+  enabled: true
+  size: 1Gi
+  storageClassName: "" # Use default StorageClass or specify if needed
+
+postgresql:
+  db: gdi
+  user: postgres
+  password: postgres-root-pass
+  schema: gnode  # Assuming 'gnode' is the schema name you want to use
+  appUser: gdi_node_app  # Application user for database
+  appPassword: gdi-node-app-pass  # Application user password

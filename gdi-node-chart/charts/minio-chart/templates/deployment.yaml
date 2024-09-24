@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "minio-chart.fullname" . }}
+  namespace: {{ .Values.global.namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "minio-chart.fullname" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "minio-chart.fullname" . }}
+    spec:
+      containers:
+        - name: minio-server
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          args:
+            - "server"
+            - "/data"
+            - "--console-address"
+            - ":9001"
+          ports:
+            - containerPort: 9000
+              name: minio
+            - containerPort: 9001
+              name: console
+          env:
+            - name: MINIO_ROOT_USER
+              value: {{ .Values.minio.rootUser }}
+            - name: MINIO_ROOT_PASSWORD
+              value: {{ .Values.minio.rootPassword }}
+          volumeMounts:
+            - name: data
+              mountPath: "/data"
+
+        - name: minio-setup
+          image: minio/mc:latest
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              # Wait for MinIO server to be ready
+              until curl -s http://localhost:9000/minio/health/live; do
+                echo 'Waiting for MinIO to be ready...'
+                sleep 5
+              done
+              # Execute the setup script
+              /opt/config/minio-config.sh
+          volumeMounts:
+            - name: config
+              mountPath: "/opt/config"
+          env:
+            - name: MINIO_SERVER_URL
+              value: "http://localhost:9000"
+            - name: MINIO_ROOT_USER
+              value: {{ .Values.minio.rootUser }}
+            - name: MINIO_ROOT_PASSWORD
+              value: {{ .Values.minio.rootPassword }}
+            - name: MINIO_APP_USER
+              value: {{ .Values.minio.appUser }}
+            - name: MINIO_APP_PASS
+              value: {{ .Values.minio.appPassword }}
+            - name: MINIO_APP_BUCKET
+              value: {{ .Values.minio.appBucket }}
+            - name: MINIO_EXT_BUCKET
+              value: {{ .Values.minio.extBucket }}
+            - name: MINIO_BACKUP_BUCKET
+              value: {{ .Values.minio.backupBucket }}
+
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ include "minio-chart.fullname" . }}-pvc
+
+        - name: config
+          configMap:
+            name: minio-config
